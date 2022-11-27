@@ -326,7 +326,7 @@ def main():
         elif (choice == "0"):
             # exit clause to break out out of the entire program and back to the command prompt
             print("\nThank you for shopping here. Goodbye.")
-            break;
+            break
 
     ## for anything else, display the menu
         else: 
