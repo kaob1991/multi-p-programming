@@ -1,29 +1,25 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h> // for checking file exists
 
-
-
-// This is a data sructure for holding product name and price variables
+// a data structure for Product holding name and price variables
 struct Product {
 	char* name;
 	double price;
 };
-
-// Data struct for holding the Product(above) and quantity variables
+// a data structure for ProductStock holding quantity and Product variables
 struct ProductStock {
 	struct Product product;
 	int quantity;
 };
-
-// Struct for Shop holding cash, and ProductStock (above)
+// a data structure for Shop holding cash, and ProductStock.
 struct Shop {
 	double cash;
 	struct ProductStock stock[20];
 	int index;
 };
-
-// Data struct for Customer- holds name, budget and a shopping list from Product Stock
+// a data structure for Customer
 struct Customer {
 	char* name;
 	double budget;
@@ -31,16 +27,13 @@ struct Customer {
 	int index;
 };
 
-
-//  Procedure to print Product items
+// a procedure to print the product 
 void printProduct(struct Product p)
 {
-	printf("Product name: %s \n Product Price: %.2f\n", p.name, p.price);
-	printf("-------------\n");
+	printf("PRODUCT NAME: %s \nPRODUCT PRICE: %.2f\n", p.name, p.price);	
 }
 
-
-// check if file name exists  see  https://www.zentut.com/c-tutorial/c-file-exists/
+/// check if file name exists  see  https://www.zentut.com/c-tutorial/c-file-exists/
 // instead of reading data from the file, read files attributes using stat() function
 int cfileexists(const char* filename){
     //
@@ -53,9 +46,7 @@ int cfileexists(const char* filename){
         return 0;
 }
 
-
-
-// Struct to create and stock the shop from the stock.csv file
+//struct to create and stock the shop from the stock csv file
 struct Shop createAndStockShop()
 {
     FILE * fp;
@@ -69,61 +60,58 @@ struct Shop createAndStockShop()
 
 	read = getline(&line, &len, fp);
 	float cash = atof(line);
-	// printf("cash in shop is %.2f\n", cash);
+	//printf("cash in shop is %.2f\n", cash);
 	
 	struct Shop shop = { cash };
 
     while ((read = getline(&line, &len, fp)) != -1) {
         //string tokenise to get the name, price and quantity from each line of the csv 
-        // printf("Retrieved line of length %zu:\n", read);
-        // printf("%s IS A LINE", line);
+        //printf("%s IS A LINE", line);
 		char *n = strtok(line, ",");
 		char *p = strtok(NULL, ",");
 		char *q = strtok(NULL, ",");
+        // convert to integer (atoi) and float (atof)
 		int quantity = atoi(q);
 		double price = atof(p);
-        // Allocate memory for product names
+        // allocate enough memory for name of product
 		char *name = malloc(sizeof(char) * 50);
+        // copy the name from n into name
 		strcpy(name, n);
-        //Create product struct using name and price
+        //create a Product struct using name and price
 		struct Product product = { name, price };
-        // Create ProductStock struct using product struct and quantity
+        //create a ProductStock struct  using product struct and quantity
 		struct ProductStock stockItem = { product, quantity };
-        // Increment index for next iten in file
+        // increment index for next item
 		shop.stock[shop.index++] = stockItem;
 		// printf("NAME OF PRODUCT %s PRICE %.2f QUANTITY %d\n", name, price, quantity);
     }
-	// return shop struct containing cash, stock and quantities
+	// return a shop struct containing the cash and stock items and quantities
 	return shop;
 }
 
-
-// update this to get updated cash and stock using pointers
-void printShop(struct Shop s)
+// void printShop(struct Shop s) updated this to get updated cash and stock using pointers
+void printShop(struct Shop *s)
 {
-	printf("Shop has %.2f in cash\n", s.cash);
-	for (int i = 0; i < s.index; i++)
-	{
-		printProduct(s.stock[i].product);
-        // {DC line}
-		printf("The shop has %d of the above\n", s.stock[i].quantity);
-        // {sample line}
-        // printf("The shop has %d in stock.\n", s->stock[i].quantity);
+	printf("Shop has €%.2f in cash\n", s->cash);
+	for (int i = 0; i < s->index; i++)
+	{   //call the print product method for each item in the shop using pointers to get the current states
+		printProduct(s->stock[i].product);
+		printf("The shop has %d in stock.\n", s->stock[i].quantity);
         printf("-------------\n");
 	}
 }
-
 
 // DISPLAY MENU
 void displayMenu()
 {
 	fflush(stdin); 
     printf("\n\n");   
-    printf(" Display Menu ")
-    printf("Select 1 for Shop Overview\n");
-    printf("Select 2 for Batch order\n");
-    printf("Select 3 for Live orders\n");
-    printf("Select 0 to Exit Shop Application\n");	
+    printf("\n\t\tWelcome to our humble little shop\n\n");
+    printf("\t\t----------------------------------\n");
+    printf("\t\tSelect 1 for Shop Overview\n");
+    printf("\t\tSelect 2 for Batch order\n");
+    printf("\t\tSelect 3 for Live orders\n");
+    printf("\t\tSelect 0 to Exit Shop Application\n\n\n");	
 }
 
 // a procedure to give the option to see the display menu again, keeping screen clutter free
@@ -137,7 +125,6 @@ void returnToMenu(){
     }
 }
 
-
 // clearing the screen, using empty lines
 void clearScreen ( void )
     {
@@ -145,9 +132,7 @@ void clearScreen ( void )
         printf("\n");
     }
 
-
-
-// read in customer from csv file
+/// read in customer from csv file
 struct Customer readCustomer()
 {   
     FILE * fp;
@@ -220,7 +205,6 @@ struct Customer readCustomer()
     //exit(EXIT_FAILURE);        
 }
 
-
 //// print customer details and their shopping list
     void printCustomer(struct Customer *cust, struct Shop *shop){
 	printf("CUSTOMER NAME: %s \nCUSTOMER BUDGET: %.2f\n", cust->name, cust->budget);
@@ -254,7 +238,6 @@ struct Customer readCustomer()
             } 
         } 
 }
-
 // a struct for a live customer
 struct Customer liveCustomer()
 
@@ -304,7 +287,6 @@ struct Customer liveCustomer()
         }
     return customer;
 }
-
 
 // A struct for processing the order by the shop
     struct Shop processingOrder(struct Shop *shop, struct Customer *cust){
@@ -393,7 +375,6 @@ struct Customer liveCustomer()
     }
     return *shop;
 }
-
 
 // main program is defined here
 int main(void) 
